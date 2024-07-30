@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://yt8xliq3s6kc"]
+
+[ext_resource type="Texture2D" uid="uid://cy3i2wvfq5juv" path="res://assets/graphics/bird.png" id="1_q2kyb"]
+
+[node name="Tweening" type="Node2D"]
+
+[node name="Bird" type="Sprite2D" parent="."]
+scale = Vector2(2, 2)
+texture = ExtResource("1_q2kyb")

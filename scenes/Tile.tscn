@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://vv3g0cf67uem"]
+
+[ext_resource type="Texture2D" uid="uid://di57mrfa0sfdl" path="res://assets/graphics/match3.png" id="1_j5obp"]
+[ext_resource type="Script" path="res://scenes/Tile.gd" id="2_0lrt6"]
+
+[node name="Tile" type="Sprite2D"]
+texture = ExtResource("1_j5obp")
+hframes = 12
+vframes = 9
+script = ExtResource("2_0lrt6")

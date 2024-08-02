@@ -10,6 +10,7 @@ var tile_coords: Array[Array] = [];
 var board: Array[Array];
 
 var focused_tile_index: Vector2i;
+var selected_tile_index;
 
 var screen_size;
 var tile_size;
@@ -29,27 +30,65 @@ func _ready():
 	
 func _process(_delta):
 	_manage_tile_focus()
+	_manage_tile_selection()
 	
+	
+func _manage_tile_selection():
+	if Input.is_action_just_pressed("accept"):
+		if (selected_tile_index == null):
+			_select_tile(focused_tile_index)
+		else:
+			if _can_swap(): _swap_tiles()
+	
+func _can_swap():
+	var horizontally_adjacent = abs(selected_tile_index.y - focused_tile_index.y) == 1
+	var vertically_adjacent = abs(selected_tile_index.x - focused_tile_index.x) == 1
+	
+	var in_same_row = selected_tile_index.x == focused_tile_index.x
+	var in_same_col =  selected_tile_index.y == focused_tile_index.y
+	
+	return (horizontally_adjacent or vertically_adjacent) and (in_same_row or in_same_col)
+		
+func _swap_tiles():	
+	var selected_tile = _get_tile(selected_tile_index)
+	var focused_tile = _get_tile(focused_tile_index)
+	
+	var temp = selected_tile
+	var temp_position = selected_tile.position
+	
+	selected_tile.position = focused_tile.position
+	focused_tile.position = temp_position
+	
+	_set_tile(selected_tile_index, focused_tile)
+	_set_tile(focused_tile_index, selected_tile)
+				
+	selected_tile_index = null
+	queue_redraw()
+
 func _manage_tile_focus():
 	if Input.is_action_just_pressed("right"):
-		focused_tile_index.y += 1 
-		focused_tile_index.y %= BOARD_SIZE
-		_focus_on_tile(focused_tile_index)
+		var tile_right_index = Vector2i(
+			focused_tile_index.x,
+			(focused_tile_index.y + 1) % BOARD_SIZE)
+		_focus_on_tile(tile_right_index)
 		
 	elif Input.is_action_just_pressed("left"):
-		focused_tile_index.y -= 1 
-		focused_tile_index.y %= BOARD_SIZE
-		_focus_on_tile(focused_tile_index)
+		var tile_left_ndx = Vector2i(
+			focused_tile_index.x,
+			(focused_tile_index.y - 1) % BOARD_SIZE)
+		_focus_on_tile(tile_left_ndx)
 	
 	elif Input.is_action_just_pressed("down"):
-		focused_tile_index.x += 1 
-		focused_tile_index.x %= BOARD_SIZE
-		_focus_on_tile(focused_tile_index)
+		var tile_below_ndx = Vector2i(
+			(focused_tile_index.x + 1) % BOARD_SIZE,
+			focused_tile_index.y)
+		_focus_on_tile(tile_below_ndx)
 		
 	elif Input.is_action_just_pressed("up"):
-		focused_tile_index.x -= 1 
-		focused_tile_index.x %= BOARD_SIZE
-		_focus_on_tile(focused_tile_index)
+		var tile_above_ndx = Vector2i(
+			(focused_tile_index.x - 1) % BOARD_SIZE,
+			focused_tile_index.y)
+		_focus_on_tile(tile_above_ndx)
 
 func _generate_tile_coords():
 	var coords: Array[Array] = []
@@ -95,13 +134,32 @@ func _generate_board() -> Array[Array]:
 	return tile_board
 
 func _focus_on_tile(tile_index: Vector2i):
-	var tile = board[tile_index.x][tile_index.y]
-	tile.select()
+	focused_tile_index = tile_index
 	queue_redraw()
-	
+
+func _select_tile(tile_index: Vector2i):
+	selected_tile_index = tile_index
+	queue_redraw()
+
 func _get_focused_tile():
-	return board[focused_tile_index.x][focused_tile_index.y]
+	return _get_tile(focused_tile_index)
+	
+func _get_selected_tile():
+	var index = selected_tile_index
+	if (index == null): return null
+	
+	return _get_tile(index)
+	
+func _get_tile(index: Vector2i) -> Tile:
+	return board[index.x][index.y]
+	
+func _set_tile(index: Vector2i, tile: Tile):
+	board[index.x][index.y] = tile
 	
 func _draw():
 	var focused_tile = _get_focused_tile()
 	draw_rect(Rect2(focused_tile.position - focused_tile.tile_size / 2, tile_size), Color(0, 0, 0), false, 3)
+	
+	var selected_tile = _get_selected_tile()
+	if (selected_tile != null):
+		draw_rect(Rect2(selected_tile.position - selected_tile.tile_size / 2, tile_size), Color(1, 1, 1), true)

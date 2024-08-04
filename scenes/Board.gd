@@ -29,6 +29,10 @@ func _ready():
 	_focus_on_tile(Vector2i(0, 0))
 	
 func _process(_delta):
+	if Input.is_action_just_pressed("calculate_matches"):
+		var matches = calculate_matches(board)
+		print(matches)
+		
 	_manage_tile_focus()
 	_manage_tile_selection()
 	
@@ -66,7 +70,9 @@ func _generate_board() -> Array[Array]:
 	for i in range(BOARD_SIZE):
 		var row = [];
 		for j in range(BOARD_SIZE):
-			current_tile.set_frame_coords(tile_coords[randi() % COLORS][0])
+			current_tile.color = randi() % (COLORS / 2)
+			current_tile.variant = 0
+			current_tile.set_frame_coords(tile_coords[current_tile.color][current_tile.variant])
 			current_tile.position = Vector2(tile_position.x, tile_position.y)
 			add_child(current_tile)
 			
@@ -136,7 +142,8 @@ func _manage_tile_selection():
 		if (selected_tile_index == null):
 			_select_tile(focused_tile_index)
 		else:
-			if _can_swap(): _swap_tiles()
+			if _can_swap(): 
+				_swap_tiles()
 
 func _can_swap():
 	var horizontally_adjacent = abs(selected_tile_index.y - focused_tile_index.y) == 1
@@ -167,7 +174,65 @@ func _swap_tiles():
 			_set_tile(focused_tile_index, selected_tile)
 			
 			selected_tile_index = null
+			var matches = calculate_matches(board);
+			print(matches)
 			queue_redraw()
 	)
 
+func calculate_matches(array: Array[Array]) -> Array[Array]:
+	var all_matches: Array[Array] = [];
+	
+	# Horizontal matches
+	for row in range(BOARD_SIZE):
+		var consecutive_matches = 0
+		var current_color = null;
+		var matches = [];
+		
+		for col in range(BOARD_SIZE):
+			var tile_color = array[row][col].color
+			if current_color == null:
+				current_color = tile_color
+				consecutive_matches += 1
+			elif current_color == tile_color:
+				consecutive_matches += 1
+			else:
+				consecutive_matches = 1
+				current_color = tile_color
+				
+			if consecutive_matches == 3:
+				for i in range(consecutive_matches):
+					matches.append(Vector2i(row, col - i))
+				
+			if consecutive_matches > 3:
+				matches.append(Vector2i(row, col))
+
+		all_matches.append(matches)
+	
+	# Vertical matches
+	for row in range(BOARD_SIZE):
+		var consecutive_matches = 0
+		var current_color = null;
+		var matches = [];
+		
+		for col in range(BOARD_SIZE):
+			var tile_color = array[col][row].color
+			if current_color == null:
+				current_color = tile_color
+				consecutive_matches += 1
+			elif current_color == tile_color:
+				consecutive_matches += 1
+			else:
+				consecutive_matches = 1
+				current_color = tile_color
+				
+			if consecutive_matches == 3:
+				for i in range(consecutive_matches):
+					matches.append(Vector2i(col - i, row))
+				
+			if consecutive_matches > 3:
+				matches.append(Vector2i(col, row))
+
+		all_matches.append(matches)
+					
+	return all_matches
 

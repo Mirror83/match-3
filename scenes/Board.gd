@@ -32,75 +32,13 @@ func _process(_delta):
 	_manage_tile_focus()
 	_manage_tile_selection()
 	
+func _draw():
+	var focused_tile = _get_focused_tile()
+	draw_rect(Rect2(focused_tile.position - focused_tile.tile_size / 2, tile_size), Color(0, 0, 0), false, 3)
 	
-func _manage_tile_selection():
-	if Input.is_action_just_pressed("accept"):
-		if (selected_tile_index == null):
-			_select_tile(focused_tile_index)
-		else:
-			if _can_swap(): _swap_tiles()
-	
-func _can_swap():
-#	print("selected: %s" % selected_tile_index)
-#	print("focused: %s" % focused_tile_index)
-	
-	var horizontally_adjacent = abs(selected_tile_index.y - focused_tile_index.y) == 1
-	var vertically_adjacent = abs(selected_tile_index.x - focused_tile_index.x) == 1
-	
-	var in_same_row = selected_tile_index.x == focused_tile_index.x
-	var in_same_col =  selected_tile_index.y == focused_tile_index.y
-	
-	return (horizontally_adjacent or vertically_adjacent) and (in_same_row or in_same_col)
-		
-func _swap_tiles():	
-	var selected_tile = _get_tile(selected_tile_index)
-	var focused_tile = _get_tile(focused_tile_index)
-	
-	var selected_position = selected_tile.position
-	var focused_position = focused_tile.position
-	
-	var tween =  create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(selected_tile, "position", focused_position, 0.2)
-	tween.tween_property(focused_tile, "position", selected_position, 0.2)
-	tween.tween_callback(
-		func ():
-			selected_tile.position = focused_position
-			focused_tile.position = selected_position
-			
-			_set_tile(selected_tile_index, focused_tile)
-			_set_tile(focused_tile_index, selected_tile)
-			
-			selected_tile_index = null
-			queue_redraw()
-	)	
-
-
-func _manage_tile_focus():
-	if Input.is_action_just_pressed("right"):
-		var tile_right_index = Vector2i(
-			focused_tile_index.x,
-			(focused_tile_index.y + 1) % BOARD_SIZE)
-		_focus_on_tile(tile_right_index)
-		
-	elif Input.is_action_just_pressed("left"):
-		var tile_left_ndx = Vector2i(
-			focused_tile_index.x,
-			(BOARD_SIZE + focused_tile_index.y - 1) % BOARD_SIZE)
-		_focus_on_tile(tile_left_ndx)
-	
-	elif Input.is_action_just_pressed("down"):
-		var tile_below_ndx = Vector2i(
-			(focused_tile_index.x + 1) % BOARD_SIZE,
-			focused_tile_index.y)
-		_focus_on_tile(tile_below_ndx)
-		
-	elif Input.is_action_just_pressed("up"):
-		var tile_above_ndx = Vector2i(
-			(BOARD_SIZE + focused_tile_index.x - 1) % BOARD_SIZE,
-			focused_tile_index.y)
-		_focus_on_tile(tile_above_ndx)
-
+	var selected_tile = _get_selected_tile()
+	if (selected_tile != null):
+		draw_rect(Rect2(selected_tile.position - selected_tile.tile_size / 2, tile_size), Color(1, 1, 1), true)
 
 func _generate_tile_coords():
 	var coords: Array[Array] = []
@@ -116,7 +54,7 @@ func _generate_tile_coords():
 		coords.push_back(colored_tiles)
 		
 	return coords
-	
+
 func _generate_board() -> Array[Array]:
 	var tile_board: Array[Array] = []
 	
@@ -144,6 +82,12 @@ func _generate_board() -> Array[Array]:
 		tile_position.y += tile_size.y
 		
 	return tile_board
+	
+func _get_tile(index: Vector2i) -> Tile:
+	return board[index.x][index.y]
+
+func _set_tile(index: Vector2i, tile: Tile):
+	board[index.x][index.y] = tile
 
 func _focus_on_tile(tile_index: Vector2i):
 	focused_tile_index = tile_index
@@ -155,23 +99,75 @@ func _select_tile(tile_index: Vector2i):
 
 func _get_focused_tile():
 	return _get_tile(focused_tile_index)
-	
+
 func _get_selected_tile():
 	var index = selected_tile_index
 	if (index == null): return null
 	
 	return _get_tile(index)
+
+func _manage_tile_focus():
+	if Input.is_action_just_pressed("right"):
+		var tile_right_index = Vector2i(
+			focused_tile_index.x,
+			(focused_tile_index.y + 1) % BOARD_SIZE)
+		_focus_on_tile(tile_right_index)
+		
+	elif Input.is_action_just_pressed("left"):
+		var tile_left_ndx = Vector2i(
+			focused_tile_index.x,
+			(BOARD_SIZE + focused_tile_index.y - 1) % BOARD_SIZE)
+		_focus_on_tile(tile_left_ndx)
 	
-func _get_tile(index: Vector2i) -> Tile:
-	return board[index.x][index.y]
+	elif Input.is_action_just_pressed("down"):
+		var tile_below_ndx = Vector2i(
+			(focused_tile_index.x + 1) % BOARD_SIZE,
+			focused_tile_index.y)
+		_focus_on_tile(tile_below_ndx)
+		
+	elif Input.is_action_just_pressed("up"):
+		var tile_above_ndx = Vector2i(
+			(BOARD_SIZE + focused_tile_index.x - 1) % BOARD_SIZE,
+			focused_tile_index.y)
+		_focus_on_tile(tile_above_ndx)
+
+func _manage_tile_selection():
+	if Input.is_action_just_pressed("accept"):
+		if (selected_tile_index == null):
+			_select_tile(focused_tile_index)
+		else:
+			if _can_swap(): _swap_tiles()
+
+func _can_swap():
+	var horizontally_adjacent = abs(selected_tile_index.y - focused_tile_index.y) == 1
+	var vertically_adjacent = abs(selected_tile_index.x - focused_tile_index.x) == 1
 	
-func _set_tile(index: Vector2i, tile: Tile):
-	board[index.x][index.y] = tile
+	var in_same_row = selected_tile_index.x == focused_tile_index.x
+	var in_same_col =  selected_tile_index.y == focused_tile_index.y
 	
-func _draw():
-	var focused_tile = _get_focused_tile()
-	draw_rect(Rect2(focused_tile.position - focused_tile.tile_size / 2, tile_size), Color(0, 0, 0), false, 3)
+	return (horizontally_adjacent or vertically_adjacent) and (in_same_row or in_same_col)
+
+func _swap_tiles():
+	var selected_tile = _get_tile(selected_tile_index)
+	var focused_tile = _get_tile(focused_tile_index)
 	
-	var selected_tile = _get_selected_tile()
-	if (selected_tile != null):
-		draw_rect(Rect2(selected_tile.position - selected_tile.tile_size / 2, tile_size), Color(1, 1, 1), true)
+	var selected_position = selected_tile.position
+	var focused_position = focused_tile.position
+	
+	var tween =  create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(selected_tile, "position", focused_position, 0.2)
+	tween.tween_property(focused_tile, "position", selected_position, 0.2)
+	tween.tween_callback(
+		func ():
+			selected_tile.position = focused_position
+			focused_tile.position = selected_position
+			
+			_set_tile(selected_tile_index, focused_tile)
+			_set_tile(focused_tile_index, selected_tile)
+			
+			selected_tile_index = null
+			queue_redraw()
+	)
+
+

@@ -86,7 +86,7 @@ func _manage_tile_focus():
 	elif Input.is_action_just_pressed("left"):
 		var tile_left_ndx = Vector2i(
 			focused_tile_index.x,
-			(focused_tile_index.y - 1) % BOARD_SIZE)
+			(BOARD_SIZE + focused_tile_index.y - 1) % BOARD_SIZE)
 		_focus_on_tile(tile_left_ndx)
 	
 	elif Input.is_action_just_pressed("down"):
@@ -97,7 +97,7 @@ func _manage_tile_focus():
 		
 	elif Input.is_action_just_pressed("up"):
 		var tile_above_ndx = Vector2i(
-			(focused_tile_index.x - 1) % BOARD_SIZE,
+			(BOARD_SIZE + focused_tile_index.x - 1) % BOARD_SIZE,
 			focused_tile_index.y)
 		_focus_on_tile(tile_above_ndx)
 

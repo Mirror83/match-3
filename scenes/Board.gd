@@ -41,6 +41,9 @@ func _manage_tile_selection():
 			if _can_swap(): _swap_tiles()
 	
 func _can_swap():
+#	print("selected: %s" % selected_tile_index)
+#	print("focused: %s" % focused_tile_index)
+	
 	var horizontally_adjacent = abs(selected_tile_index.y - focused_tile_index.y) == 1
 	var vertically_adjacent = abs(selected_tile_index.x - focused_tile_index.x) == 1
 	
@@ -53,17 +56,25 @@ func _swap_tiles():
 	var selected_tile = _get_tile(selected_tile_index)
 	var focused_tile = _get_tile(focused_tile_index)
 	
-	var temp = selected_tile
-	var temp_position = selected_tile.position
+	var selected_position = selected_tile.position
+	var focused_position = focused_tile.position
 	
-	selected_tile.position = focused_tile.position
-	focused_tile.position = temp_position
-	
-	_set_tile(selected_tile_index, focused_tile)
-	_set_tile(focused_tile_index, selected_tile)
-				
-	selected_tile_index = null
-	queue_redraw()
+	var tween =  create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(selected_tile, "position", focused_position, 0.2)
+	tween.tween_property(focused_tile, "position", selected_position, 0.2)
+	tween.tween_callback(
+		func ():
+			selected_tile.position = focused_position
+			focused_tile.position = selected_position
+			
+			_set_tile(selected_tile_index, focused_tile)
+			_set_tile(focused_tile_index, selected_tile)
+			
+			selected_tile_index = null
+			queue_redraw()
+	)	
+
 
 func _manage_tile_focus():
 	if Input.is_action_just_pressed("right"):
@@ -89,6 +100,7 @@ func _manage_tile_focus():
 			(focused_tile_index.x - 1) % BOARD_SIZE,
 			focused_tile_index.y)
 		_focus_on_tile(tile_above_ndx)
+
 
 func _generate_tile_coords():
 	var coords: Array[Array] = []

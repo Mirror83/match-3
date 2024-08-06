@@ -1,7 +1,7 @@
 extends Node2D
 
 const BOARD_SIZE = 8
-const RESPAWN_Y = -100
+const RESPAWN_Y = -200
 
 var board: Array[Array];
 
@@ -15,7 +15,13 @@ func _ready():
 	screen_size = get_viewport_rect().size
 	
 	board = _generate_board()
-			
+	# Stop-gap for initializing board without a matching configuration
+	# Ideally, board should also check whether there is at least one swap
+	# which results in a match.
+	while has_matches(board):
+		_clear_board(board)
+		board = _generate_board()
+	
 	position = Vector2(
 		lerpf(0, screen_size.x, 0.5) - (tile_size.x * BOARD_SIZE) / 2, 
 		screen_size.y / 2 - (tile_size.y * BOARD_SIZE) / 2
@@ -55,6 +61,12 @@ func _draw():
 			true
 		)
 
+func _clear_board(array: Array[Array]):
+	for row in array:
+		for tile in row:
+			remove_child(tile)
+			
+	array.clear()
 
 func _generate_board() -> Array[Array]:
 	var tile_board: Array[Array] = []
@@ -86,7 +98,8 @@ func _generate_board() -> Array[Array]:
 	return tile_board
 	
 	
-func _get_tile(index: Vector2i) -> Tile:
+func _get_tile(index) -> Tile:
+	if index == null: return null
 	return board[index.x][index.y]
 
 func _set_tile(index: Vector2i, tile: Tile):
@@ -231,6 +244,13 @@ func calculate_matches(array: Array[Array]) -> Array[Array]:
 		all_matches.append(matches)
 					
 	return all_matches
+	
+func has_matches(array: Array[Array]) -> bool:
+	var all_matches = calculate_matches(array)
+	for sub_matches in all_matches:
+		if (len(sub_matches) > 0): return true
+		
+	return false
 
 func remove_matches(matches: Array[Array], highlight: bool = false):
 	for row in range(BOARD_SIZE):
@@ -278,7 +298,7 @@ func remove_matches(matches: Array[Array], highlight: bool = false):
 						above_tile,
 						"position",
 						 Vector2(removed_tile_pos.x, removed_tile_pos.y),
-						 0.2)
+						 0.4)
 					_set_tile(tile_ndx, above_tile)
 					_set_tile(above_tile_ndx, null)
 					break;
@@ -303,7 +323,7 @@ func remove_matches(matches: Array[Array], highlight: bool = false):
 					new_tile,
 					"position",
 					Vector2(final_pos.x, final_pos.y),
-					0.2
+					0.4
 				)
 				
 	tween.tween_callback(

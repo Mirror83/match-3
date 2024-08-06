@@ -1,24 +1,19 @@
 extends Node2D
 
-const FRAME_WIDTH = 12;
-const FRAME_HEIGHT = 9;
-const VARIETIES = 6;
-const COLORS = FRAME_HEIGHT * 2
 const BOARD_SIZE = 8
+const RESPAWN_Y = -100
 
-var tile_coords: Array[Array] = [];
 var board: Array[Array];
 
 var focused_tile_index: Vector2i;
 var selected_tile_index;
 
-var screen_size;
-var tile_size;
+var screen_size: Vector2;
+var tile_size: Vector2;
 
 func _ready():
 	screen_size = get_viewport_rect().size
 	
-	tile_coords = _generate_tile_coords()
 	board = _generate_board()
 			
 	position = Vector2(
@@ -32,32 +27,34 @@ func _process(_delta):
 	if Input.is_action_just_pressed("calculate_matches"):
 		var matches = calculate_matches(board)
 		print(matches)
+	
+	if Input.is_action_just_pressed("highlight_matches"):
+		var matches = calculate_matches(board)
+		remove_matches(matches, true)
 		
 	_manage_tile_focus()
 	_manage_tile_selection()
 	
 func _draw():
-	var focused_tile = _get_focused_tile()
-	draw_rect(Rect2(focused_tile.position - focused_tile.tile_size / 2, tile_size), Color(0, 0, 0), false, 3)
+	var focused_tile_pos = tile_pos_by_index(focused_tile_index)
+	draw_rect(
+		Rect2(focused_tile_pos - tile_size / 2, tile_size),
+		Color(0, 0, 0),
+		false,
+		3
+	)
 	
-	var selected_tile = _get_selected_tile()
+	var selected_tile = _get_tile(selected_tile_index)
 	if (selected_tile != null):
-		draw_rect(Rect2(selected_tile.position - selected_tile.tile_size / 2, tile_size), Color(1, 1, 1), true)
+		draw_rect(
+			Rect2(
+				selected_tile.position - selected_tile.tile_size / 2,
+				tile_size
+			),
+			Color(1, 1, 1),
+			true
+		)
 
-func _generate_tile_coords():
-	var coords: Array[Array] = []
-	for i in range(FRAME_HEIGHT):
-		var colored_tiles = []
-		for j in range(FRAME_WIDTH):
-			if (j == VARIETIES):
-				coords.push_back(colored_tiles)
-				colored_tiles = []
-			
-			colored_tiles.push_back(Vector2(j, i))
-			
-		coords.push_back(colored_tiles)
-		
-	return coords
 
 func _generate_board() -> Array[Array]:
 	var tile_board: Array[Array] = []
@@ -70,10 +67,9 @@ func _generate_board() -> Array[Array]:
 	for i in range(BOARD_SIZE):
 		var row = [];
 		for j in range(BOARD_SIZE):
-			current_tile.color = randi() % (COLORS / 2)
-			current_tile.variant = 0
-			current_tile.set_frame_coords(tile_coords[current_tile.color][current_tile.variant])
+			current_tile.set_color_and_variant(randi() % (Tile.COLORS / 2), 0)	
 			current_tile.position = Vector2(tile_position.x, tile_position.y)
+			
 			add_child(current_tile)
 			
 			row.append(current_tile)
@@ -89,6 +85,7 @@ func _generate_board() -> Array[Array]:
 		
 	return tile_board
 	
+	
 func _get_tile(index: Vector2i) -> Tile:
 	return board[index.x][index.y]
 
@@ -102,15 +99,12 @@ func _focus_on_tile(tile_index: Vector2i):
 func _select_tile(tile_index: Vector2i):
 	selected_tile_index = tile_index
 	queue_redraw()
-
-func _get_focused_tile():
-	return _get_tile(focused_tile_index)
-
-func _get_selected_tile():
-	var index = selected_tile_index
-	if (index == null): return null
 	
-	return _get_tile(index)
+func tile_pos_by_index(index: Vector2) -> Vector2:
+	return Vector2(
+	 	tile_size.y / 2 + tile_size.y * index.y,
+		tile_size.x / 2 + tile_size.x * index.x
+	)
 
 func _manage_tile_focus():
 	if Input.is_action_just_pressed("right"):
@@ -142,17 +136,19 @@ func _manage_tile_selection():
 		if (selected_tile_index == null):
 			_select_tile(focused_tile_index)
 		else:
-			if _can_swap(): 
-				_swap_tiles()
+			if _can_swap(): _swap_tiles()
 
 func _can_swap():
-	var horizontally_adjacent = abs(selected_tile_index.y - focused_tile_index.y) == 1
-	var vertically_adjacent = abs(selected_tile_index.x - focused_tile_index.x) == 1
+	var horizontally_adjacent = \
+		abs(selected_tile_index.y - focused_tile_index.y) == 1
+	var vertically_adjacent = \
+		abs(selected_tile_index.x - focused_tile_index.x) == 1
 	
 	var in_same_row = selected_tile_index.x == focused_tile_index.x
 	var in_same_col =  selected_tile_index.y == focused_tile_index.y
 	
-	return (horizontally_adjacent or vertically_adjacent) and (in_same_row or in_same_col)
+	return (horizontally_adjacent or vertically_adjacent) \
+		and (in_same_row or in_same_col)
 
 func _swap_tiles():
 	var selected_tile = _get_tile(selected_tile_index)
@@ -175,7 +171,7 @@ func _swap_tiles():
 			
 			selected_tile_index = null
 			var matches = calculate_matches(board);
-			print(matches)
+			remove_matches(matches)
 			queue_redraw()
 	)
 
@@ -236,3 +232,85 @@ func calculate_matches(array: Array[Array]) -> Array[Array]:
 					
 	return all_matches
 
+func remove_matches(matches: Array[Array], highlight: bool = false):
+	for row in range(BOARD_SIZE):
+		var row_matches = matches[row]
+		for index in row_matches:
+			var tile = _get_tile(index)
+			if highlight == true:
+				tile.self_modulate = Color(0,0,0)
+			else:
+				remove_child(tile)
+				tile = null
+				_set_tile(index, tile)
+	
+	for col in range(BOARD_SIZE, BOARD_SIZE*2):
+		var col_matches = matches[col]
+		for index in col_matches:
+			var tile = _get_tile(index)
+			if highlight == true:
+				tile.self_modulate = Color(0,0,0)
+			else:
+				remove_child(tile)
+				tile = null
+				_set_tile(index, tile)
+				
+	if highlight == true: return
+	
+	# Reposition remaining tiles
+	for row in range(BOARD_SIZE - 1, -1, -1):
+		for col in range(BOARD_SIZE):
+			var tile_ndx = Vector2i(row, col)
+			var tile = _get_tile(tile_ndx)
+			
+			if tile != null: continue
+			print(tile_ndx)
+			var removed_tile_pos = Vector2(
+			 	tile_size.y / 2 + tile_size.y * col,
+				tile_size.x / 2 + tile_size.x * row
+			)
+			for above_row in range(row, -1, -1):
+				var above_tile_ndx = Vector2i(above_row, col)
+				var above_tile = _get_tile(above_tile_ndx)
+				if above_tile != null:
+					var tween = create_tween()
+					tween.tween_property(
+						above_tile,
+						"position",
+						 Vector2(removed_tile_pos.x, removed_tile_pos.y),
+						 0.2)
+					_set_tile(tile_ndx, above_tile)
+					_set_tile(above_tile_ndx, null)
+					break;
+	
+	var tween = create_tween()
+	tween.set_parallel(true)
+	# Replace null tiles with new tiles
+	for row in range(BOARD_SIZE):
+		for col in range(BOARD_SIZE):
+			var index = Vector2(row, col)
+			if _get_tile(index) == null:
+				var final_pos = tile_pos_by_index(index)
+				
+				var new_tile = preload("res://scenes/Tile.tscn").instantiate()
+				new_tile.position = Vector2(final_pos.x, RESPAWN_Y)
+				new_tile.set_color_and_variant(randi() % (Tile.COLORS / 2), 0)
+				
+				_set_tile(index, new_tile)
+				add_child(new_tile)
+				
+				tween.tween_property(
+					new_tile,
+					"position",
+					Vector2(final_pos.x, final_pos.y),
+					0.2
+				)
+				
+	tween.tween_callback(
+		func ():
+			var follow_up_matches = calculate_matches(board);
+			remove_matches(follow_up_matches)
+			queue_redraw()
+	)
+				
+	

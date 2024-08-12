@@ -1,4 +1,5 @@
 extends Node2D
+class_name Board
 
 const BOARD_SIZE = 8
 const RESPAWN_Y = -200
@@ -23,7 +24,7 @@ func _ready():
 		board = _generate_board()
 	
 	position = Vector2(
-		lerpf(0, screen_size.x, 0.5) - (tile_size.x * BOARD_SIZE) / 2, 
+		lerpf(0, screen_size.x, 0.7) - (tile_size.x * BOARD_SIZE) / 2, 
 		screen_size.y / 2 - (tile_size.y * BOARD_SIZE) / 2
 	)
 	

@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://bm8psoo46ynji"]
+
+[ext_resource type="Script" path="res://scenes/Game.gd" id="1_jjgvl"]
+[ext_resource type="PackedScene" uid="uid://603kjm8ep4el" path="res://scenes/GameStatus.tscn" id="1_ta8j1"]
+[ext_resource type="Script" path="res://scenes/Board.gd" id="2_omwm6"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_jjgvl")
+
+[node name="GameStatus" parent="." instance=ExtResource("1_ta8j1")]
+
+[node name="Board" type="Node2D" parent="."]
+script = ExtResource("2_omwm6")

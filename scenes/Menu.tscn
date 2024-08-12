@@ -1,0 +1,57 @@
+[gd_scene load_steps=4 format=3 uid="uid://dnjmbypjm607j"]
+
+[ext_resource type="FontFile" uid="uid://dk7s8lpjt2gxm" path="res://assets/fonts/font.ttf" id="1_b7w6p"]
+[ext_resource type="Script" path="res://scenes/Menu.gd" id="2_aa8u7"]
+
+[sub_resource type="Theme" id="Theme_um57h"]
+default_font = ExtResource("1_b7w6p")
+default_font_size = 16
+
+[node name="Menu" type="CanvasLayer"]
+script = ExtResource("2_aa8u7")
+metadata/_edit_lock_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -63.0
+offset_top = -43.5
+offset_right = 63.0
+offset_bottom = 43.5
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_um57h")
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="RichTextLabel" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 30
+bbcode_enabled = true
+text = "[rainbow freq=0.5 sat=0.8 val=0.8]Match 3[/rainbow]"
+fit_content = true
+scroll_active = false
+shortcut_keys_enabled = false
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_stretch_ratio = 0.0
+alignment = 1
+
+[node name="StartButton" type="Button" parent="VBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Start"
+flat = true
+
+[node name="QuitButton" type="Button" parent="VBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Quit
+"
+flat = true
+
+[connection signal="pressed" from="VBoxContainer/VBoxContainer/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]

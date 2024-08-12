@@ -1,0 +1,62 @@
+[gd_scene load_steps=4 format=3 uid="uid://603kjm8ep4el"]
+
+[ext_resource type="FontFile" uid="uid://dk7s8lpjt2gxm" path="res://assets/fonts/font.ttf" id="1_h60li"]
+[ext_resource type="Script" path="res://scenes/GameStatus.gd" id="2_4fq53"]
+
+[sub_resource type="Theme" id="Theme_v0w37"]
+default_font = ExtResource("1_h60li")
+default_font_size = 16
+
+[node name="GameStatus" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 20.0
+offset_top = 30.0
+offset_right = 20.0
+offset_bottom = 30.0
+theme = SubResource("Theme_v0w37")
+script = ExtResource("2_4fq53")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 94.0
+offset_bottom = 88.0
+theme_override_constants/separation = 8
+
+[node name="Labels" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="Level" type="Label" parent="HBoxContainer/Labels"]
+layout_mode = 2
+text = "Level:"
+
+[node name="Score" type="Label" parent="HBoxContainer/Labels"]
+layout_mode = 2
+text = "Score:"
+
+[node name="Goal" type="Label" parent="HBoxContainer/Labels"]
+layout_mode = 2
+text = "Goal:"
+
+[node name="Timer" type="Label" parent="HBoxContainer/Labels"]
+layout_mode = 2
+text = "Timer:"
+
+[node name="Values" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="Level" type="Label" parent="HBoxContainer/Values"]
+layout_mode = 2
+text = "1"
+
+[node name="Score" type="Label" parent="HBoxContainer/Values"]
+layout_mode = 2
+text = "0"
+
+[node name="Goal" type="Label" parent="HBoxContainer/Values"]
+layout_mode = 2
+text = "1500"
+
+[node name="Timer" type="Label" parent="HBoxContainer/Values"]
+layout_mode = 2
+text = "60"

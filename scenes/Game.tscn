@@ -11,3 +11,5 @@ script = ExtResource("1_jjgvl")
 
 [node name="Board" type="Node2D" parent="."]
 script = ExtResource("2_omwm6")
+
+[connection signal="match_found" from="Board" to="." method="_on_board_match_found"]

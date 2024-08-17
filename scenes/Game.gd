@@ -13,15 +13,15 @@ var timer_value = 0
 var total_score = 0
 
 func _ready():
-	$GameStatus/HBoxContainer/Values/Level.text = "%d" % level
-	$GameStatus/HBoxContainer/Values/Score.text = "%d" % total_score
-	$GameStatus/HBoxContainer/Values/Goal.text = "%d" % goal
-	$GameStatus/HBoxContainer/Values/Timer.text = "%d" % timer_value
+	$GameStatus.set_level(level)
+	$GameStatus.set_score(total_score)
+	$GameStatus.set_goal(goal)
+	$GameStatus.set_timer(timer_value)
 
 func _on_board_match_found(score):
 	total_score += score
-	$GameStatus/HBoxContainer/Values/Score.text = "%d" % total_score
+	$GameStatus.set_score(total_score)
 	
 	if total_score >= goal:
 		level_complete.emit()
-		
+

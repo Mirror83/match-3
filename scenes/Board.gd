@@ -1,6 +1,8 @@
 extends Node2D
 class_name Board
 
+signal match_found(score: int)
+
 const BOARD_SIZE = 8
 const RESPAWN_Y = -200
 
@@ -68,7 +70,9 @@ func _clear_board(array: Array[Array]):
 			remove_child(tile)
 			
 	array.clear()
-
+	print("Clear board:")
+	print(array)
+	
 func _generate_board() -> Array[Array]:
 	var tile_board: Array[Array] = []
 	
@@ -191,6 +195,7 @@ func _swap_tiles():
 
 func calculate_matches(array: Array[Array]) -> Array[Array]:
 	var all_matches: Array[Array] = [];
+	var located_match = false
 	
 	# Horizontal matches
 	for row in range(BOARD_SIZE):
@@ -210,6 +215,7 @@ func calculate_matches(array: Array[Array]) -> Array[Array]:
 				current_color = tile_color
 				
 			if consecutive_matches == 3:
+				if not located_match: located_match = true
 				for i in range(consecutive_matches):
 					matches.append(Vector2i(row, col - i))
 				
@@ -236,6 +242,7 @@ func calculate_matches(array: Array[Array]) -> Array[Array]:
 				current_color = tile_color
 				
 			if consecutive_matches == 3:
+				if not located_match: located_match = true
 				for i in range(consecutive_matches):
 					matches.append(Vector2i(col - i, row))
 				
@@ -243,8 +250,21 @@ func calculate_matches(array: Array[Array]) -> Array[Array]:
 				matches.append(Vector2i(col, row))
 
 		all_matches.append(matches)
-					
+		
+	if located_match:
+		match_found.emit(calculate_match_score(all_matches))
+		
 	return all_matches
+	
+func calculate_match_score(array: Array[Array]) -> int:
+	var score = 0
+	for sub_matches in array:
+		for tile_ndx in sub_matches:
+			score += _get_tile(tile_ndx).score
+	
+	return score
+			
+	
 	
 func has_matches(array: Array[Array]) -> bool:
 	var all_matches = calculate_matches(array)

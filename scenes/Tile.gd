@@ -12,6 +12,7 @@ const COLORS = FRAME_HEIGHT * 2
 var tile_size = get_rect().size
 var color: int;
 var variant: int;
+var score: int;
 
 static var frame_coords_list := _generate_frame_coords_list();
 
@@ -33,4 +34,5 @@ static func _generate_frame_coords_list() -> Array[Array]:
 func set_color_and_variant(new_color: int, new_variant: int):
 	color = new_color
 	variant = new_variant
+	score = (variant + 1) * 100
 	set_frame_coords(frame_coords_list[new_color][new_variant])

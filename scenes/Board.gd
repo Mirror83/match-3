@@ -7,6 +7,7 @@ const BOARD_SIZE = 8
 const RESPAWN_Y = -200
 
 var board: Array[Array];
+var is_board_ready = false;
 
 var focused_tile_index: Vector2i;
 var selected_tile_index;
@@ -14,9 +15,11 @@ var selected_tile_index;
 var screen_size: Vector2;
 var tile_size: Vector2;
 
-func _ready():
-	screen_size = get_viewport_rect().size
+func reset():
+	_clear_board(board)
+	_initialize_board()
 	
+func _initialize_board():
 	board = _generate_board()
 	# Stop-gap for initializing board without a matching configuration
 	# Ideally, board should also check whether there is at least one swap
@@ -25,12 +28,18 @@ func _ready():
 		_clear_board(board)
 		board = _generate_board()
 	
+	is_board_ready = true
+	
 	position = Vector2(
 		lerpf(0, screen_size.x, 0.7) - (tile_size.x * BOARD_SIZE) / 2, 
 		screen_size.y / 2 - (tile_size.y * BOARD_SIZE) / 2
 	)
 	
 	_focus_on_tile(Vector2i(0, 0))
+
+func _ready():
+	screen_size = get_viewport_rect().size	
+	_initialize_board()
 	
 func _process(_delta):
 	if Input.is_action_just_pressed("calculate_matches"):
@@ -251,7 +260,7 @@ func calculate_matches(array: Array[Array]) -> Array[Array]:
 
 		all_matches.append(matches)
 		
-	if located_match:
+	if located_match and is_board_ready:
 		match_found.emit(calculate_match_score(all_matches))
 		
 	return all_matches

@@ -37,7 +37,7 @@ func _on_board_match_found(score):
 
 func _on_timer_timeout():
 	timer_value -= 1
-	print("Timer: %d" % timer_value)
+	
 	$GameStatus.set_timer(timer_value)
 	
 	if timer_value == 0:

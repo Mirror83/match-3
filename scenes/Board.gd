@@ -38,13 +38,12 @@ func _initialize_board():
 	_focus_on_tile(Vector2i(0, 0))
 
 func _ready():
-	screen_size = get_viewport_rect().size	
+	screen_size = get_viewport_rect().size
 	_initialize_board()
 	
 func _process(_delta):
 	if Input.is_action_just_pressed("calculate_matches"):
 		var matches = calculate_matches(board)
-		print(matches)
 	
 	if Input.is_action_just_pressed("highlight_matches"):
 		var matches = calculate_matches(board)
@@ -79,9 +78,7 @@ func _clear_board(array: Array[Array]):
 			remove_child(tile)
 			
 	array.clear()
-	print("Clear board:")
-	print(array)
-	
+
 func _generate_board() -> Array[Array]:
 	var tile_board: Array[Array] = []
 	
@@ -110,8 +107,7 @@ func _generate_board() -> Array[Array]:
 		tile_position.y += tile_size.y
 		
 	return tile_board
-	
-	
+
 func _get_tile(index) -> Tile:
 	if index == null: return null
 	return board[index.x][index.y]
@@ -197,10 +193,10 @@ func _swap_tiles():
 			_set_tile(focused_tile_index, selected_tile)
 			
 			selected_tile_index = null
-			var matches = calculate_matches(board);
+			var matches = calculate_matches(board)
 			remove_matches(matches)
 			queue_redraw()
-	)
+	).set_delay(0.3)
 
 func calculate_matches(array: Array[Array]) -> Array[Array]:
 	var all_matches: Array[Array] = [];
@@ -232,7 +228,7 @@ func calculate_matches(array: Array[Array]) -> Array[Array]:
 				matches.append(Vector2i(row, col))
 
 		all_matches.append(matches)
-	
+
 	# Vertical matches
 	for row in range(BOARD_SIZE):
 		var consecutive_matches = 0
@@ -272,9 +268,7 @@ func calculate_match_score(array: Array[Array]) -> int:
 			score += _get_tile(tile_ndx).score
 	
 	return score
-			
-	
-	
+
 func has_matches(array: Array[Array]) -> bool:
 	var all_matches = calculate_matches(array)
 	for sub_matches in all_matches:
@@ -314,7 +308,6 @@ func remove_matches(matches: Array[Array], highlight: bool = false):
 			var tile = _get_tile(tile_ndx)
 			
 			if tile != null: continue
-			print(tile_ndx)
 			var removed_tile_pos = Vector2(
 			 	tile_size.y / 2 + tile_size.y * col,
 				tile_size.x / 2 + tile_size.x * row
@@ -362,5 +355,3 @@ func remove_matches(matches: Array[Array], highlight: bool = false):
 			remove_matches(follow_up_matches)
 			queue_redraw()
 	)
-				
-	

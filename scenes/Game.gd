@@ -96,7 +96,7 @@ func _reset():
 	total_score = 0
 	$GameStatus.set_score(total_score)
 	
-	goal = 0
+	goal = START_GOAL
 	$GameStatus.set_goal(goal)
 	
 	level_timer = INITIAL_TIMER

@@ -1,6 +1,4 @@
 extends Control
-class_name MessageBox
-
 
 var message: String;
 

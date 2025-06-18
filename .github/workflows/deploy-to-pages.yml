@@ -40,7 +40,7 @@ jobs:
           mv Godot_v${{env.godot_version}}-stable_linux.x86_64 godot
 
       - name: Create output directory
-        run: mkdir ${{github.repository}}/export
+        run: mkdir -p ${{github.repository}}/export
 
       - name: Export project for Web (Build static files)
         run: |

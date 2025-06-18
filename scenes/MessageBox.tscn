@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://cgmlfuls42u1d"]
 
 [ext_resource type="FontFile" uid="uid://dk7s8lpjt2gxm" path="res://assets/fonts/font.ttf" id="1_sava0"]
-[ext_resource type="Script" path="res://scenes/MessageBox.gd" id="2_vhji7"]
+[ext_resource type="Script" uid="uid://covqc46lv32yt" path="res://scenes/MessageBox.gd" id="2_vhji7"]
 
 [sub_resource type="Theme" id="Theme_c3is4"]
 default_font = ExtResource("1_sava0")

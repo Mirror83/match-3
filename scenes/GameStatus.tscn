@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://603kjm8ep4el"]
 
 [ext_resource type="FontFile" uid="uid://dk7s8lpjt2gxm" path="res://assets/fonts/font.ttf" id="1_h60li"]
-[ext_resource type="Script" path="res://scenes/GameStatus.gd" id="2_4fq53"]
+[ext_resource type="Script" uid="uid://cjs5adp3ot47l" path="res://scenes/GameStatus.gd" id="2_4fq53"]
 
 [sub_resource type="Theme" id="Theme_v0w37"]
 default_font = ExtResource("1_h60li")

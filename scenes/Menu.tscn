@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dnjmbypjm607j"]
 
 [ext_resource type="FontFile" uid="uid://dk7s8lpjt2gxm" path="res://assets/fonts/font.ttf" id="1_b7w6p"]
-[ext_resource type="Script" path="res://scenes/Menu.gd" id="2_aa8u7"]
+[ext_resource type="Script" uid="uid://cc04g4ygrlk8a" path="res://scenes/Menu.gd" id="2_aa8u7"]
 
 [sub_resource type="Theme" id="Theme_um57h"]
 default_font = ExtResource("1_b7w6p")

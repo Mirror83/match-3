@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://bm8psoo46ynji"]
 
-[ext_resource type="Script" path="res://scenes/Game.gd" id="1_jjgvl"]
+[ext_resource type="Script" uid="uid://br0cykvrl5g06" path="res://scenes/Game.gd" id="1_jjgvl"]
 [ext_resource type="PackedScene" uid="uid://603kjm8ep4el" path="res://scenes/GameStatus.tscn" id="1_ta8j1"]
-[ext_resource type="Script" path="res://scenes/Board.gd" id="2_omwm6"]
+[ext_resource type="Script" uid="uid://byq3fls0h80xs" path="res://scenes/Board.gd" id="2_omwm6"]
 [ext_resource type="PackedScene" uid="uid://dnjmbypjm607j" path="res://scenes/Menu.tscn" id="4_30kw4"]
 
 [node name="Game" type="Node2D"]

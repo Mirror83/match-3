@@ -1,0 +1,70 @@
+name: Deploy to Godot Game GitHub Pages
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "simulation" branch
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains two jobs "build", and "deploy". The "build" job prepares the static assets required
+  # and the "deploy" job deploys them to GitHub Pages
+  build:
+    runs-on: ubuntu-latest
+    env:
+      godot_version: 4.4.1
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Create Godot export templates directory
+        run: mkdir -p ~/.local/share/godot/export_templates/
+
+      - name: Download Godot ${{env.godot_version}}
+        run: wget -O godot_${{env.godot_version}}.zip https://github.com/godotengine/godot/releases/download/${{env.godot_version}}-stable/Godot_v${{env.godot_version}}-stable_linux.x86_64.zip
+
+      - name: Set-up Godot ${{env.godot_version}} export templates
+        run: |
+          wget -O export_templates.tpz https://github.com/godotengine/godot/releases/download/${{env.godot_version}}-stable/Godot_v${{env.godot_version}}-stable_export_templates.tpz
+          unzip export_templates.tpz -d ~/.local/share/godot/export_templates/
+          mv ~/.local/share/godot/export_templates/templates ~/.local/share/godot/export_templates/${{env.godot_version}}.stable
+
+      - name: Extract Godot ${{env.godot_version}} binary
+        run: |
+          unzip godot_${{env.godot_version}}.zip
+          mv Godot_v${{env.godot_version}}-stable_linux.x86_64 godot
+
+      - name: Create output directory
+        run: mkdir ${{github.repository}}/export
+
+      - name: Export project for Web (Build static files)
+        run: |
+          ./godot --path ${{github.repository}} --headless --verbose --no-header --export-release "Web" export/index.html
+
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{github.repository}}/export/
+
+  deploy:
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write # Grants permission to deploy to GitHub Pages
+      id-token: write # To verify that the deployment originates from an appropriate source
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

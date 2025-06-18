@@ -40,17 +40,17 @@ jobs:
           mv Godot_v${{env.godot_version}}-stable_linux.x86_64 godot
 
       - name: Create output directory
-        run: mkdir -p ${{github.repository}}/export
+        run: mkdir -p export
 
       - name: Export project for Web (Build static files)
         run: |
-          ./godot --path ${{github.repository}} --headless --verbose --no-header --export-release "Web" export/index.html
+          ./godot --headless --verbose --no-header --export-release "Web" export/index.html
 
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{github.repository}}/export/
+          path: export/
 
   deploy:
     # Grant GITHUB_TOKEN the permissions required to make a Pages deployment

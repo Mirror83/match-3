@@ -44,11 +44,13 @@ alignment = 1
 
 [node name="StartButton" type="Button" parent="VBoxContainer/VBoxContainer"]
 layout_mode = 2
+mouse_default_cursor_shape = 2
 text = "Start"
 flat = true
 
 [node name="QuitButton" type="Button" parent="VBoxContainer/VBoxContainer"]
 layout_mode = 2
+mouse_default_cursor_shape = 2
 text = "Quit
 "
 flat = true
